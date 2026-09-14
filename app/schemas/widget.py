@@ -1,5 +1,6 @@
 """
 Widget schemas for request/response validation.
+Phase 3: Updated with embed snippet support.
 """
 from datetime import datetime
 from typing import Optional, Any, Dict
@@ -32,9 +33,10 @@ class WidgetUpdate(BaseModel):
 
 
 class WidgetResponse(WidgetBase):
-    """Schema for widget response."""
+    """Schema for widget response with embed snippet."""
     id: str
     owner_id: str
+    embed_snippet: str = Field(description="HTML embed snippet for this widget")
     created_at: datetime
     updated_at: datetime
 
@@ -46,3 +48,13 @@ class WidgetListResponse(BaseModel):
     """Schema for widget list response."""
     widgets: list[WidgetResponse]
     total: int
+
+
+class WidgetConfig(BaseModel):
+    """Public widget configuration for rendering."""
+    id: str
+    title: str
+    type: str
+    button_text: str
+    form_config: Optional[Dict[str, Any]] = None
+    display_options: Optional[Dict[str, Any]] = None

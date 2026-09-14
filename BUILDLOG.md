@@ -132,10 +132,174 @@ This document records how AI assisted in building the FlyRank Widget Platform.
 
 ---
 
-## Next Steps (Phase 2)
+## Phase 2: Hardened Submission Path
 
-- Implement widget JavaScript snippet
-- Add submission API
-- Geo-enrichment service
-- Rate limiting and abuse protection
-- Dashboard API
+### What AI Helped With
+
+1. **Geo Enrichment Service**
+   - AI implemented dual-provider fallback chain (ip-api.com → ipapi.co).
+   - Created abstract GeoProvider interface for testability.
+   - Designed graceful degradation when both providers fail.
+
+2. **Rate Limiting**
+   - AI created in-memory rate limiter with configurable limits.
+   - Added HTTP headers for rate limit info.
+   - Integrated as FastAPI middleware.
+
+3. **Spam Protection**
+   - AI implemented honeypot field in submission schema.
+   - Designed silent rejection (returns success to not tip off bots).
+
+4. **Idempotency**
+   - AI added Idempotency-Key header support.
+   - Created in-memory cache with TTL expiration.
+
+5. **Notification Service**
+   - AI created notification service with provider pattern.
+   - Designed failure-tolerant side effects.
+
+### What AI Suggested
+
+- **In-memory storage** for rate limiting and idempotency (simpler for capstone).
+- **Silent honeypot rejection** (returns success to confuse bots).
+- **Provider pattern** for geo and notification services.
+- **Async notification** to not block main request.
+
+### Errors in AI Suggestions
+
+1. **Rate Limiting Key**
+   - AI initially suggested widget-based rate limiting.
+   - Changed to IP-based for public endpoint (more appropriate).
+
+2. **Idempotency Storage**
+   - AI suggested Redis for production.
+   - Kept in-memory for capstone simplicity.
+
+### What I Changed
+
+1. **Notification Design**
+   - Added console provider for development.
+   - Made webhook provider configurable.
+
+2. **Error Handling**
+   - Ensured all errors return clean JSON.
+   - Never expose internal details.
+
+### What I Learned
+
+1. **Fallback Chains**
+   - How to implement provider fallback with graceful degradation.
+   - Importance of not failing the main operation.
+
+2. **Spam Protection**
+   - Honeypot technique effectiveness.
+   - Silent rejection vs explicit blocking.
+
+3. **Idempotency**
+   - Header-based idempotency for safe retries.
+   - TTL-based cache expiration.
+
+---
+
+## Phase 3: Delivery, Dashboard & Proof
+
+### What AI Helped With
+
+1. **Widget JavaScript**
+   - AI created client-side widget renderer.
+   - Implemented form generation from config.
+   - Added honeypot field automatically.
+
+2. **Public Config Endpoint**
+   - AI designed minimal config response.
+   - Added cache headers for performance.
+
+3. **Dashboard API**
+   - AI created submission list with filtering.
+   - Implemented basic analytics/stats.
+   - Ensured tenant isolation.
+
+4. **Versioned Bundle**
+   - AI suggested cache-busting via URL versioning.
+   - Implemented /widget.v1.js endpoint.
+
+### What AI Suggested
+
+- **URL-based versioning** for cache busting (simple, effective).
+- **Immutable cache headers** for widget.js (changes rarely).
+- **Short cache** for config (5 minutes).
+- **Separate customer-site directory** for demo.
+
+### Errors in AI Suggestions
+
+1. **Widget Rendering**
+   - AI initially used innerHTML (XSS risk).
+   - Changed to textContent for safe rendering.
+
+2. **Cache Headers**
+   - AI suggested no-cache for config.
+   - Changed to max-age=300 for better performance.
+
+### What I Changed
+
+1. **Customer Website**
+   - Added clear instructions for widget ID replacement.
+   - Added visual styling for demo.
+
+2. **Dashboard Stats**
+   - Added geo breakdown (countries, cities).
+   - Added recent submissions count.
+
+### What I Learned
+
+1. **Cross-Origin Widget Loading**
+   - How to serve JavaScript from different origin.
+   - CORS configuration for script tags.
+
+2. **Cache Strategy**
+   - Immutable for versioned assets.
+   - Short TTL for dynamic config.
+
+3. **Dashboard Design**
+   - Essential metrics for widget owners.
+   - Tenant isolation in queries.
+
+---
+
+## AI Tools Used (All Phases)
+
+- **Code Generation**: Models, routes, services, tests, JavaScript
+- **Documentation**: DESIGN.md, README.md, EVIDENCE.md, BUILDLOG.md
+- **Architecture**: Service patterns, fallback chains, middleware
+- **Testing**: Test structure, mock providers, assertions
+- **Configuration**: Environment variables, CORS, rate limiting
+
+---
+
+## Key Decisions (All Phases)
+
+1. **Service Pattern**
+   - Separate services for geo, notification, rate limiting.
+   - Enables testing with mocks.
+
+2. **In-Memory Storage**
+   - Simpler for capstone scope.
+   - Would use Redis in production.
+
+3. **Silent Failures**
+   - Honeypot returns success.
+   - Notification failure doesn't break submission.
+
+4. **URL Versioning**
+   - Simple cache busting.
+   - Easy to understand and maintain.
+
+---
+
+## What I Would Do Differently
+
+1. **Add Redis** for rate limiting and idempotency in production.
+2. **Add webhook signatures** for notification security.
+3. **Add widget analytics** (impressions, clicks).
+4. **Add email notifications** for submissions.
+5. **Add admin dashboard** for platform owner.

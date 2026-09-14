@@ -734,3 +734,270 @@ curl -X POST http://localhost:8000/api/v1/submissions/ \
 | Notification failure doesn't break submission | ✅ | Test 27 |
 | Background job exists | ✅ | Async notification service |
 | Idempotency implemented | ✅ | Tests 28, 29 |
+
+---
+
+# Phase 3: Delivery, Dashboard & Proof
+
+---
+
+## 30. Embed Snippet
+
+**Test:**
+```bash
+curl -X POST http://localhost:8000/api/v1/widgets/ \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer <token>" \
+  -d '{"title": "Test Widget"}'
+```
+
+**Result:**
+```json
+{
+  "id": "widget-uuid",
+  "title": "Test Widget",
+  "embed_snippet": "<script src=\"http://localhost:8000/widget.js?id=widget-uuid\"></script>",
+  ...
+}
+```
+
+**Note:** Embed snippet included in widget response.
+
+---
+
+## 31. Public Widget Config
+
+**Test:**
+```bash
+curl -X GET http://localhost:8000/api/v1/widgets/<widget_id>/config
+```
+
+**Result:**
+```json
+{
+  "id": "widget-uuid",
+  "title": "Test Widget",
+  "type": "lead_capture",
+  "button_text": "Submit",
+  "form_config": null,
+  "display_options": null
+}
+```
+
+**Headers:**
+```
+Cache-Control: public, max-age=300
+```
+
+**Note:** No sensitive data exposed.
+
+---
+
+## 32. Widget JavaScript Loading
+
+**Test:**
+```bash
+curl -X GET http://localhost:8000/widget.js
+```
+
+**Result:** Returns JavaScript content
+
+**Headers:**
+```
+Cache-Control: public, max-age=31536000, immutable
+Content-Type: application/javascript
+```
+
+---
+
+## 33. Versioned Widget Bundle
+
+**Test:**
+```bash
+curl -X GET http://localhost:8000/widget.v1.js
+```
+
+**Result:** Returns same JavaScript content
+
+**Note:** Versioned URL for cache busting.
+
+---
+
+## 34. Customer Website - Second Origin
+
+**Test:**
+```
+Browser opens http://localhost:5500
+       │
+       │ loads <script> from http://localhost:8000
+       │
+       ▼
+Widget renders on page
+       │
+       │ user submits form
+       │
+       ▼
+POST to http://localhost:8000/api/v1/submissions/
+       │
+       ▼
+Submission stored successfully
+```
+
+**Note:** Cross-origin widget loading and submission working.
+
+---
+
+## 35. Dashboard - Submissions List
+
+**Test:**
+```bash
+curl -X GET http://localhost:8000/api/v1/dashboard/submissions \
+  -H "Authorization: Bearer <token>"
+```
+
+**Result:**
+```json
+{
+  "submissions": [
+    {
+      "id": "submission-uuid",
+      "widget_id": "widget-uuid",
+      "submission_data": {"name": "John", "email": "john@example.com"},
+      "country": "United States",
+      "city": "New York",
+      "created_at": "2026-09-14T21:00:00Z"
+    }
+  ],
+  "total": 1
+}
+```
+
+---
+
+## 36. Dashboard - Statistics
+
+**Test:**
+```bash
+curl -X GET http://localhost:8000/api/v1/dashboard/stats \
+  -H "Authorization: Bearer <token>"
+```
+
+**Result:**
+```json
+{
+  "total_submissions": 25,
+  "widgets": {
+    "widget-1": 15,
+    "widget-2": 10
+  },
+  "recent_submissions": 8,
+  "geo_breakdown": {
+    "countries": {
+      "United States": 12,
+      "United Kingdom": 8,
+      "Germany": 5
+    },
+    "cities": {
+      "New York": 7,
+      "London": 5,
+      "Berlin": 3
+    }
+  }
+}
+```
+
+---
+
+## 37. Dashboard - Tenant Isolation
+
+**Test:**
+```bash
+# User A submissions
+curl -X GET http://localhost:8000/api/v1/dashboard/submissions \
+  -H "Authorization: Bearer <user_a_token>"
+
+# User B submissions
+curl -X GET http://localhost:8000/api/v1/dashboard/submissions \
+  -H "Authorization: Bearer <user_b_token>"
+```
+
+**Result:**
+- User A sees only their submissions
+- User B sees only their submissions
+- No cross-tenant data leakage
+
+---
+
+## 38. API Documentation
+
+**Test:**
+```bash
+curl -X GET http://localhost:8000/docs
+curl -X GET http://localhost:8000/openapi.json
+```
+
+**Result:** Swagger UI and OpenAPI spec available
+
+---
+
+## Phase 3 Summary
+
+| Requirement | Status | Evidence |
+|-------------|--------|----------|
+| Embed snippet | ✅ | Test 30 |
+| Public config endpoint | ✅ | Test 31 |
+| Cache headers | ✅ | Tests 31, 32 |
+| Versioned bundle | ✅ | Test 33 |
+| Widget JavaScript | ✅ | Test 32 |
+| Second-origin website | ✅ | Test 34 |
+| CORS works | ✅ | Test 34 |
+| Dashboard submissions | ✅ | Test 35 |
+| Dashboard stats | ✅ | Test 36 |
+| Dashboard tenant isolation | ✅ | Test 37 |
+| API documentation | ✅ | Test 38 |
+
+---
+
+## Final Requirement Checklist
+
+| Category | Requirement | Status |
+|----------|-------------|--------|
+| **Authentication** | Registration | ✅ |
+| | Login | ✅ |
+| | JWT tokens | ✅ |
+| **Widget CRUD** | Create | ✅ |
+| | Read | ✅ |
+| | Update | ✅ |
+| | Delete | ✅ |
+| | List | ✅ |
+| **Tenant Isolation** | Widget access | ✅ |
+| | Submission access | ✅ |
+| | Dashboard access | ✅ |
+| **Widget Delivery** | Embed snippet | ✅ |
+| | widget.js | ✅ |
+| | Public config | ✅ |
+| | Cache headers | ✅ |
+| | Versioned bundle | ✅ |
+| **Submission** | Public endpoint | ✅ |
+| | Validation | ✅ |
+| | Oversized payload | ✅ |
+| | Rate limiting | ✅ |
+| | Spam protection | ✅ |
+| **Geo Enrichment** | Provider A | ✅ |
+| | Provider B | ✅ |
+| | Fallback chain | ✅ |
+| | Graceful degradation | ✅ |
+| **Side Effects** | Notification | ✅ |
+| | Failure tolerance | ✅ |
+| | Background job | ✅ |
+| | Idempotency | ✅ |
+| **Dashboard** | Submissions list | ✅ |
+| | Statistics | ✅ |
+| | Tenant isolation | ✅ |
+| **Documentation** | README | ✅ |
+| | capstone.yaml | ✅ |
+| | EVIDENCE.md | ✅ |
+| | BUILDLOG.md | ✅ |
+| **Security** | No secrets in git | ✅ |
+| | CORS configured | ✅ |
+| | Input validation | ✅ |

@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Customer Website - FlyRank Widget Demo</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background-color: #f5f5f5;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 40px 20px;
+            text-align: center;
+        }
+        header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+        }
+        header p {
+            font-size: 1.2rem;
+            opacity: 0.9;
+        }
+        .content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 40px;
+            margin-top: 40px;
+        }
+        .section {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .section h2 {
+            color: #667eea;
+            margin-bottom: 20px;
+            font-size: 1.5rem;
+        }
+        .widget-section {
+            text-align: center;
+            padding: 40px;
+        }
+        .info-section p {
+            margin-bottom: 15px;
+        }
+        .info-section ul {
+            margin-left: 20px;
+        }
+        .info-section li {
+            margin-bottom: 10px;
+        }
+        .badge {
+            display: inline-block;
+            background: #667eea;
+            color: white;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            margin-top: 20px;
+        }
+        @media (max-width: 768px) {
+            .content {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Customer Website</h1>
+        <p>This is a demo customer website running on a separate origin</p>
+    </header>
+
+    <div class="container">
+        <div class="content">
+            <div class="section info-section">
+                <h2>About This Demo</h2>
+                <p>This page demonstrates the FlyRank widget running from a different origin than the API.</p>
+                <p><strong>API Origin:</strong> http://localhost:8000</p>
+                <p><strong>Customer Origin:</strong> http://localhost:5500</p>
+                <ul>
+                    <li>Widget loads via script tag from API</li>
+                    <li>Config fetched via public endpoint</li>
+                    <li>Submissions sent to public API</li>
+                    <li>CORS headers enable cross-origin requests</li>
+                </ul>
+                <span class="badge">Phase 3 Demo</span>
+            </div>
+
+            <div class="section widget-section">
+                <h2>Lead Capture Widget</h2>
+                <p>The widget below is loaded from the API:</p>
+
+                <!-- REPLACE WIDGET_ID with your actual widget ID after creating one -->
+                <script src="http://localhost:8000/widget.js?id=YOUR_WIDGET_ID_HERE"></script>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

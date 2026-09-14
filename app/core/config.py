@@ -13,6 +13,7 @@ class Settings(BaseSettings):
     # Application
     APP_NAME: str = "FlyRank Widget Platform"
     DEBUG: bool = False
+    API_BASE_URL: str = "http://localhost:8000"
 
     # Database
     DATABASE_URL: str = Field(

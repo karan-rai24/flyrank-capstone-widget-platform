@@ -1,0 +1,91 @@
+# FlyRank Capstone Configuration
+# Phase 3: Delivery, Dashboard & Proof
+
+# Project metadata
+name: flyrank-capstone-widget-platform
+version: 3.0.0
+description: Embeddable Widget & Lead-Capture Platform Backend
+
+# Commands for running the project
+run:
+  api: "uvicorn app.main:app --reload --host 0.0.0.0 --port 8000"
+  customer-site: "cd customer-site && python -m http.server 5500"
+  both: "start /B uvicorn app.main:app --reload --host 0.0.0.0 --port 8000 && cd customer-site && python -m http.server 5500"
+
+# Database setup
+seed:
+  command: "python -m app.scripts.seed"
+  description: "Create demo user, widget, and test data"
+
+# Testing
+test:
+  command: "pytest tests/ -v"
+  coverage: "pytest tests/ --cov=app --cov-report=html"
+
+# Base URL for API
+base_url: "http://localhost:8000"
+
+# API endpoints
+endpoints:
+  # Authentication
+  auth:
+    register: "POST /api/v1/auth/register"
+    login: "POST /api/v1/auth/login"
+  
+  # Widget CRUD (authenticated)
+  widgets:
+    create: "POST /api/v1/widgets/"
+    list: "GET /api/v1/widgets/"
+    get: "GET /api/v1/widgets/{widget_id}"
+    update: "PATCH /api/v1/widgets/{widget_id}"
+    delete: "DELETE /api/v1/widgets/{widget_id}"
+  
+  # Public widget config
+  widget_config:
+    get: "GET /api/v1/widgets/{widget_id}/config"
+  
+  # Public submission
+  submissions:
+    create: "POST /api/v1/submissions/"
+  
+  # Dashboard (authenticated)
+  dashboard:
+    submissions: "GET /api/v1/dashboard/submissions"
+    stats: "GET /api/v1/dashboard/stats"
+  
+  # Widget delivery
+  widget_delivery:
+    js: "GET /widget.js"
+    js_versioned: "GET /widget.v1.js"
+  
+  # Documentation
+  docs:
+    swagger: "GET /docs"
+    openapi: "GET /openapi.json"
+  
+  # Health
+  health: "GET /health"
+
+# CORS configuration
+cors:
+  allowed_origins:
+    - "http://localhost:3000"
+    - "http://localhost:5500"
+    - "http://localhost:8080"
+    - "http://localhost:8000"
+
+# Rate limiting
+rate_limit:
+  max_requests: 10
+  window_seconds: 60
+
+# Geo providers
+geo_providers:
+  primary:
+    name: "ip-api.com"
+    url: "http://ip-api.com/json/{ip}"
+    timeout: 5
+  fallback:
+    name: "ipapi.co"
+    url: "https://ipapi.co/{ip}/json/"
+    timeout: 5
