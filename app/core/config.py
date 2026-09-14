@@ -1,7 +1,8 @@
 """
 Application configuration using Pydantic Settings.
+Phase 2: Updated with CORS and rate limiting config.
 """
-from typing import Optional
+from typing import Optional, List
 from pydantic_settings import BaseSettings
 from pydantic import Field
 
@@ -24,6 +25,28 @@ class Settings(BaseSettings):
     )
     JWT_ALGORITHM: str = "HS256"
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 30
+
+    # CORS
+    CORS_ALLOWED_ORIGINS: List[str] = Field(
+        default=["http://localhost:3000", "http://localhost:5500"],
+        description="Allowed CORS origins"
+    )
+
+    # Rate Limiting
+    RATE_LIMIT_MAX_REQUESTS: int = Field(
+        default=10,
+        description="Maximum requests per window"
+    )
+    RATE_LIMIT_WINDOW_SECONDS: int = Field(
+        default=60,
+        description="Rate limit window in seconds"
+    )
+
+    # Submission
+    MAX_SUBMISSION_PAYLOAD_SIZE: int = Field(
+        default=65536,  # 64KB
+        description="Maximum submission payload size in bytes"
+    )
 
     class Config:
         env_file = ".env"
